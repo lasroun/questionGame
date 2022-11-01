@@ -1,14 +1,3 @@
-// creer un quiz standard,
-
-// creer un systeme de classement, 
-
-// creer un localstorage,
-
-// introduire json in database, 
-
-// lieer a une api python
-
-
 // fichier JSON
 let quiz = {
     "data": [
@@ -41,22 +30,10 @@ let quiz = {
 }
 
 // variable
-let joueur
-let pointTotal = 0
-function reload(){
-    for (const iterator of Object.keys(localStorage)) {
-        let cacheDoc = document.createElement('p')
-        cacheDoc.textContent = `${iterator} - ${localStorage.getItem(iterator)}`
-        htmlScores.appendChild(cacheDoc)
-    }
-}
 
 // recuperation des elements html
 let htmlCommencer = document.querySelector("#formulaire")
 let htmlQuestion = document.querySelector("#question")
-let htmlBtnA = document.querySelector("#btn-A")
-let htmlBtnB = document.querySelector("#btn-B")
-let htmlBtnC = document.querySelector("#btn-C")
 let htmlScores = document.querySelector("#score")
 let htmlSectionQuestion = document.querySelector("#section-question")
 let htmlSectionReponse = document.querySelector("#section-reponse")
@@ -69,218 +46,309 @@ let htmlNext = document.querySelector("#next")
 let htmlPrevious = document.querySelector("#previous")
 let htmlSectionFinish = document.querySelector("#section-finish")
 let htmlFinish = document.querySelector("#finish")
+let htmlChoiceA = document.querySelector("#choiceA")
+let htmlChoiceB = document.querySelector("#choiceB")
+let htmlChoiceC = document.querySelector("#choiceC")
 
-reload()
-//fonction
-function displayQuestion(){
-    htmlSectionQuestion.style.display = "flex"
-    htmlSectionReponse.style.display = "block"
-    htmlSectionNavigation.style.display = "block"
+let listQuiz = []
+if(!(localStorage.getItem("listscore"))){
+    localStorage.setItem("listscore", [])
 }
 
-function displayStarter(){
-    htmlSectionStart.style.display = "block"
-}
-
-function displayNoneQuestion(){
-    htmlSectionQuestion.style.display = "none"
-    htmlSectionReponse.style.display = "none"
-    htmlSectionNavigation.style.display = "none"
-}
-
-function displayNoneStarter(){
-    htmlSectionStart.style.display = "none"
-}
-
-function disabledElement(element){
-    element.style.pointerEvents = "none"
-}
-function enableElement(element){
-    element.style.pointerEvents = "auto"
-}
-
-
-function soloQuiz(element){
-    displayQuestion()
-    enableElement(htmlBtnA)
-    enableElement(htmlBtnB)
-    enableElement(htmlBtnC)
-    htmlBtnA.className = "btn btn-secondary display-6"
-    htmlBtnB.className = "btn btn-secondary display-6"
-    htmlBtnC.className = "btn btn-secondary display-6"
-
-    htmlQuestion.textContent = element.question
-    htmlBtnA.value = element.choix[0]
-    htmlBtnB.value = element.choix[1]
-    htmlBtnC.value = element.choix[2]
-    verify(element)
-}
-
-
-function verify(element){
-
-    function addEventlistA(){
-        element.choice = htmlBtnA
-        element.config = true
-        if(htmlBtnA.value == element.reponse){
-            htmlBtnA.className = "btn btn-success display-6"
-            htmlBtnA.removeEventListener("click", addEventlistA)
-            disabledElement(htmlBtnA)
-            disabledElement(htmlBtnB)
-            disabledElement(htmlBtnC)
-            pointTotal += 1
-            console.log(pointTotal)
-
-        }else{
-            htmlBtnA.className = "btn btn-danger display-6"
-            htmlBtnA.removeEventListener("click", addEventlistA)
-            disabledElement(htmlBtnA)
-            disabledElement(htmlBtnB)
-            disabledElement(htmlBtnC)
-        }
-        console.log(`${element.choice.value} verify`)
+for (let index = 0; index < quiz.data.length; index++) {
+    let _ = {
+        "question": quiz.data[index].question,
+        "choix": quiz.data[index].choix,
+        "reponse": quiz.data[index].reponse,
+        "index": index +1
     }
-    function addEventlistB(){
-        element.choice = htmlBtnB
-        element.config = true
-        if(htmlBtnB.value == element.reponse){
-            htmlBtnB.className = "btn btn-success display-6"
-            htmlBtnB.removeEventListener("click", addEventlistB)
-            disabledElement(htmlBtnA)
-            disabledElement(htmlBtnB)
-            disabledElement(htmlBtnC)
-            pointTotal += 1
-            console.log(pointTotal)
-
-        }else{
-            htmlBtnB.className = "btn btn-danger display-6"
-            htmlBtnB.removeEventListener("click", addEventlistB)
-            disabledElement(htmlBtnA)
-            disabledElement(htmlBtnB)
-            disabledElement(htmlBtnC)
-        }
-        console.log(`${element.choice.value} verify`)
-    }
-    function addEventlistC(){
-        element.choice = htmlBtnC
-        element.config = true
-        if(htmlBtnC.value == element.reponse){
-            htmlBtnC.className = "btn btn-success display-6"
-            htmlBtnC.removeEventListener("click", addEventlistC)
-            disabledElement(htmlBtnA)
-            disabledElement(htmlBtnB)
-            disabledElement(htmlBtnC)
-            pointTotal += 1
-            console.log(pointTotal)
-        }else{
-            htmlBtnC.className = "btn btn-danger display-6"
-            htmlBtnC.removeEventListener("click", addEventlistC)
-            disabledElement(htmlBtnA)
-            disabledElement(htmlBtnB)
-            disabledElement(htmlBtnC)
-        }
-        console.log(`${element.choice.value} verify`)
-    }
-    htmlBtnA.addEventListener("click", addEventlistA)
-    htmlBtnB.addEventListener("click", addEventlistB)
-    htmlBtnC.addEventListener("click", addEventlistC)
+    listQuiz.push(_)
 }
 
-htmlSectionFinish.addEventListener("click", () => {
-    console.log(pointTotal)
-    joueur.scoreInfo = pointTotal
-    localStorage.setItem(`${joueur.nameJoueur}`, `${joueur.scoreInfo}`)
-    reload()
-})
+let pseudo
 
-// class utile
+htmlSectionQuestion.style.display = 'none'
+htmlSectionReponse.style.display = 'none'
+htmlSectionNavigation.style.display = 'none'
+htmlSectionFinish.style.display = 'none'
+htmlCommencer.addEventListener("click", (e)=>{
+    e.preventDefault()
+    if(htmlPseudo.value !== ""){
+        htmlCommencer.style.display = 'none'
 
-class Quiz{
-    constructor(question, choix, reponse){
-        this.question = question
-        this.choix = choix
-        this.reponse = reponse
-    }
-}
+        pseudo = htmlPseudo.value
 
-class Joueur{
-    constructor(name){
-        this.name = name
-        this.score = 0
-    }
-    get scoreInfo(){
-        return this.score
-    }
-    set scoreInfo(valeur){
-        this.score = valeur
-    }
-    get nameJoueur(){
-        return this.name
-    }
-}
-
-class Jeu{
-    constructor() {
-        let listQuiz = []
-        let nowIndex = 0
-        htmlPrevious.style.display = 'none'
-
-        // initialisation listQuizObject
-        for (const key of quiz.data) {
-            let _ = new Quiz(key.question, key.choix, key.reponse)
-            listQuiz.push(_)
-        }
-        htmlQuizResolu.textContent = nowIndex +1
+        htmlQuestion.textContent = listQuiz[0].question
+        htmlChoiceA.textContent = listQuiz[0].choix[0]
+        htmlChoiceB.textContent = listQuiz[0].choix[1]
+        htmlChoiceC.textContent = listQuiz[0].choix[2]
+        htmlQuizResolu.textContent = listQuiz[indexNow].index
         htmlQuizTotal.textContent = listQuiz.length
 
-        // htmlPrevious.addEventListener("click", () => {
-        //     if(nowIndex >= 1){
-        //         nowIndex -= 1
-        //         htmlQuizResolu.textContent = nowIndex +1
-        //         htmlQuizTotal.textContent = listQuiz.length
-        //         soloQuiz(listQuiz[nowIndex])
-        //     }
-        //     if(nowIndex === 0){
-        //         htmlQuizResolu.textContent = nowIndex +1
-        //         htmlQuizTotal.textContent = listQuiz.length
-        //         soloQuiz(listQuiz[nowIndex])
-        //         htmlPrevious.style.display = 'none'
-        //     }
-        // })
-        htmlNext.addEventListener("click", () =>{
-            console.log(nowIndex, pointTotal)
-            if(nowIndex < listQuiz.length-1){
-                nowIndex += 1
-                htmlQuizResolu.textContent = nowIndex +1
-                htmlQuizTotal.textContent = listQuiz.length
-                soloQuiz(listQuiz[nowIndex])
-                // htmlPrevious.style.display = 'inline-block'
-            }
-            if(nowIndex === listQuiz.length-1){
-                htmlQuizResolu.textContent = nowIndex +1
-                htmlQuizTotal.textContent = listQuiz.length
-                soloQuiz(listQuiz[nowIndex])
-                htmlNext.style.display = 'none'
-                htmlSectionFinish.style.display = 'inline-block'
-                // htmlPrevious.style.display = 'inline-block'
-            }
-        })
-        displayNoneQuestion()
-        htmlSectionFinish.style.display = "none"
-        htmlCommencer.addEventListener("submit", (e) => {
-        e.preventDefault()
-        displayNoneStarter()
-        if(htmlPseudo.value !== ""){
-            joueur = new Joueur(htmlPseudo.value)
-            setTimeout(()=>{
-                soloQuiz(listQuiz[nowIndex])
-            }, 500)
-        }else{
-            displayStarter()
+        htmlSectionQuestion.style.display = ''
+        htmlSectionReponse.style.display = ''
+        htmlSectionNavigation.style.display = ''
+    }
+})
+
+let indexNow = 0
+let score = 0
+let saveInfo = []
+
+htmlNext.addEventListener("click", ()=>{
+    if(indexNow < (listQuiz.length - 1)){
+        let _ = []
+        for (let index = 0; index < saveInfo.length; index++) {
+            _.push(saveInfo[index].index)
         }
+
+        htmlChoiceA.style.pointerEvents = 'auto'
+        htmlChoiceB.style.pointerEvents = 'auto'
+        htmlChoiceC.style.pointerEvents = 'auto'
+        htmlChoiceA.className = 'btn btn-secondary'
+        htmlChoiceB.className = 'btn btn-secondary'
+        htmlChoiceC.className = 'btn btn-secondary'
+
+        indexNow = indexNow + 1
+        
+        htmlQuestion.textContent = listQuiz[indexNow].question
+        htmlChoiceA.textContent = listQuiz[indexNow].choix[0]
+        htmlChoiceB.textContent = listQuiz[indexNow].choix[1]
+        htmlChoiceC.textContent = listQuiz[indexNow].choix[2]
+        htmlQuizResolu.textContent = listQuiz[indexNow].index
+        htmlQuizTotal.textContent = listQuiz.length
+        if(_.includes(indexNow)){
+            for (let index = 0; index < saveInfo.length; index++) {
+                if(indexNow == saveInfo[index].index){
+                    if(htmlChoiceA.textContent == saveInfo[indexNow].save){
+                        if(htmlChoiceA.textContent == listQuiz[indexNow].reponse){
+                            htmlChoiceA.className = 'btn btn-success'
+                        }else{
+                            htmlChoiceA.className = 'btn btn-danger'
+                        }
+                    }
+                    if(htmlChoiceB.textContent == saveInfo[indexNow].save){
+                        if(htmlChoiceB.textContent == listQuiz[indexNow].reponse){
+                            htmlChoiceB.className = 'btn btn-success'
+                        }else{
+                            htmlChoiceB.className = 'btn btn-danger'
+                        }
+                    }
+                    if(htmlChoiceC.textContent == saveInfo[indexNow].save){
+                        if(htmlChoiceC.textContent == listQuiz[indexNow].reponse){
+                            htmlChoiceC.className = 'btn btn-success'
+                        }else{
+                            htmlChoiceC.className = 'btn btn-danger'
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if(saveInfo.length == listQuiz.length-1){
+        htmlSectionNavigation.style.display = 'none'
+        htmlSectionFinish.style.display = ''
+    }
+})
+htmlPrevious.addEventListener("click", ()=>{
+    if(indexNow > 0){
+        let _ = []
+        for (let index = 0; index < saveInfo.length; index++) {
+            _.push(saveInfo[index].index)
+        }
+        htmlChoiceA.style.pointerEvents = 'auto'
+        htmlChoiceB.style.pointerEvents = 'auto'
+        htmlChoiceC.style.pointerEvents = 'auto'
+        htmlChoiceA.className = 'btn btn-secondary'
+        htmlChoiceB.className = 'btn btn-secondary'
+        htmlChoiceC.className = 'btn btn-secondary'
+
+        indexNow = indexNow - 1
+        htmlQuestion.textContent = listQuiz[indexNow].question
+        htmlChoiceA.textContent = listQuiz[indexNow].choix[0]
+        htmlChoiceB.textContent = listQuiz[indexNow].choix[1]
+        htmlChoiceC.textContent = listQuiz[indexNow].choix[2]
+        htmlQuizResolu.textContent = listQuiz[indexNow].index
+        htmlQuizTotal.textContent = listQuiz.length
+
+        if(_.includes(indexNow)){
+            for (let index = 0; index < saveInfo.length; index++) {
+                if(indexNow == saveInfo[index].index){
+                    if(htmlChoiceA.textContent == saveInfo[indexNow].save){
+                        if(htmlChoiceA.textContent == listQuiz[indexNow].reponse){
+                            htmlChoiceA.className = 'btn btn-success'
+                        }else{
+                            htmlChoiceA.className = 'btn btn-danger'
+                        }
+                    }
+                    if(htmlChoiceB.textContent == saveInfo[indexNow].save){
+                        if(htmlChoiceB.textContent == listQuiz[indexNow].reponse){
+                            htmlChoiceB.className = 'btn btn-success'
+                        }else{
+                            htmlChoiceB.className = 'btn btn-danger'
+                        }
+                    }
+                    if(htmlChoiceC.textContent == saveInfo[indexNow].save){
+                        if(htmlChoiceC.textContent == listQuiz[indexNow].reponse){
+                            htmlChoiceC.className = 'btn btn-success'
+                        }else{
+                            htmlChoiceC.className = 'btn btn-danger'
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if(saveInfo.length == listQuiz.length-1){
+        htmlSectionNavigation.style.display = 'none'
+        htmlSectionFinish.style.display = ''
+    }
+})
+function answersA(){
+    if(saveInfo.length !== 0){
+        let _ = []
+        for (let index = 0; index < saveInfo.length; index++) {
+            _.push(saveInfo[index].index)
+        }
+        if(!(_.includes(indexNow))){
+            if(htmlChoiceA.textContent == listQuiz[indexNow].reponse){
+                htmlChoiceA.className = "btn btn-success"
+                score += 1
+            }else{
+                htmlChoiceA.className = "btn btn-danger"
+            }
+            htmlChoiceA.style.pointerEvents = 'none'
+            htmlChoiceB.style.pointerEvents = 'none'
+            htmlChoiceC.style.pointerEvents = 'none'
+    
+            saveInfo.push({
+                "index": indexNow,
+                "save": htmlChoiceA.textContent
+            })
+        }
+    }else{
+        if(htmlChoiceA.textContent == listQuiz[indexNow].reponse){
+            htmlChoiceA.className = "btn btn-success"
+            score += 1
+        }else{
+            htmlChoiceA.className = "btn btn-danger"
+        }
+        htmlChoiceA.style.pointerEvents = 'none'
+        htmlChoiceB.style.pointerEvents = 'none'
+        htmlChoiceC.style.pointerEvents = 'none'
+
+        saveInfo.push({
+            "index": indexNow,
+            "save": htmlChoiceA.textContent
+        })
+    }
+}
+function answersB(){
+    if(saveInfo.length !== 0){
+        let _ = []
+        for (let index = 0; index < saveInfo.length; index++) {
+            _.push(saveInfo[index].index)
+        }
+        if(!(_.includes(indexNow))){
+            if(htmlChoiceB.textContent == listQuiz[indexNow].reponse){
+                htmlChoiceB.className = "btn btn-success"
+                score += 1
+            }else{
+                htmlChoiceB.className = "btn btn-danger"
+            }
+            htmlChoiceA.style.pointerEvents = 'none'
+            htmlChoiceB.style.pointerEvents = 'none'
+            htmlChoiceC.style.pointerEvents = 'none'
+    
+            saveInfo.push({
+                "index": indexNow,
+                "save": htmlChoiceB.textContent
+            })
+        }
+    }else{
+        if(htmlChoiceB.textContent == listQuiz[indexNow].reponse){
+            htmlChoiceB.className = "btn btn-success"
+            score += 1
+        }else{
+            htmlChoiceB.className = "btn btn-danger"
+        }
+        htmlChoiceA.style.pointerEvents = 'none'
+        htmlChoiceB.style.pointerEvents = 'none'
+        htmlChoiceC.style.pointerEvents = 'none'
+
+        saveInfo.push({
+            "index": indexNow,
+            "save": htmlChoiceB.textContent
+        })
+    }
+}
+function answersC(){
+    if(saveInfo.length !== 0){
+        let _ = []
+        for (let index = 0; index < saveInfo.length; index++) {
+            _.push(saveInfo[index].index)
+        }
+        if(!(_.includes(indexNow))){
+            if(htmlChoiceC.textContent == listQuiz[indexNow].reponse){
+                htmlChoiceC.className = "btn btn-success"
+                score += 1
+            }else{
+                htmlChoiceC.className = "btn btn-danger"
+            }
+            htmlChoiceA.style.pointerEvents = 'none'
+            htmlChoiceB.style.pointerEvents = 'none'
+            htmlChoiceC.style.pointerEvents = 'none'
+    
+            saveInfo.push({
+                "index": indexNow,
+                "save": htmlChoiceC.textContent
+            })
+        }
+    }else{
+        if(htmlChoiceC.textContent == listQuiz[indexNow].reponse){
+            htmlChoiceC.className = "btn btn-success"
+            score += 1
+        }else{
+            htmlChoiceC.className = "btn btn-danger"
+        }
+        htmlChoiceA.style.pointerEvents = 'none'
+        htmlChoiceB.style.pointerEvents = 'none'
+        htmlChoiceC.style.pointerEvents = 'none'
+
+        saveInfo.push({
+            "index": indexNow,
+            "save": htmlChoiceC.textContent
         })
     }
 }
 
-// debut
-let start = new Jeu()
+htmlChoiceA.addEventListener("click", answersA)
+htmlChoiceB.addEventListener("click", answersB)
+htmlChoiceC.addEventListener("click", answersC)
+
+htmlFinish.addEventListener("click", ()=>{
+    if(localStorage.getItem('listscore') == ''){
+        let _ = [{
+            "pseudo" : pseudo,
+            "score" : score
+        }]
+        localStorage.setItem("listscore", JSON.stringify(_))
+        console.log(localStorage.getItem("listscore"))
+    }else{
+        let recup = JSON.parse(localStorage.getItem("listscore"))
+        recup.push({
+            "pseudo" : pseudo,
+            "score" : score
+        })
+        localStorage.setItem('listscore', JSON.stringify(recup))
+    }
+    window.location.reload()
+})
+let htmlCode = ''
+if((localStorage.getItem('listscore')) && (localStorage.getItem('listscore') !== '')){
+    let _ = JSON.parse(localStorage.getItem('listscore'))
+    for (let index = 0; index < _.length; index++) {
+        htmlCode += `<span>${_[index].pseudo} - ${_[index].score}</span> </br>`
+    }
+    htmlScores.innerHTML = htmlCode
+}
